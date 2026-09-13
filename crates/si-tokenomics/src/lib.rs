@@ -16,14 +16,54 @@ pub struct Fund {
 }
 
 pub const FUNDS: [Fund; 8] = [
-    Fund { id: "community", bps: 3000, amount: 3_000_000_000, rule: "vesting + anti-sybil" },
-    Fund { id: "ecosystem", bps: 2000, amount: 2_000_000_000, rule: "grants / events, multi-sig" },
-    Fund { id: "treasury", bps: 1500, amount: 1_500_000_000, rule: "36m vesting, 6m cliff" },
-    Fund { id: "contributors", bps: 1000, amount: 1_000_000_000, rule: "24m vesting, 6m cliff" },
-    Fund { id: "liquidity", bps: 1000, amount: 1_000_000_000, rule: "partially locked" },
-    Fund { id: "mediation", bps: 800, amount: 800_000_000, rule: "mediation and archive utility" },
-    Fund { id: "insurance", bps: 400, amount: 400_000_000, rule: "incidents and bug bounty only" },
-    Fund { id: "genesis_airdrop", bps: 300, amount: 300_000_000, rule: "verified families, not a dream sale" },
+    Fund {
+        id: "community",
+        bps: 3000,
+        amount: 3_000_000_000,
+        rule: "vesting + anti-sybil",
+    },
+    Fund {
+        id: "ecosystem",
+        bps: 2000,
+        amount: 2_000_000_000,
+        rule: "grants / events, multi-sig",
+    },
+    Fund {
+        id: "treasury",
+        bps: 1500,
+        amount: 1_500_000_000,
+        rule: "36m vesting, 6m cliff",
+    },
+    Fund {
+        id: "contributors",
+        bps: 1000,
+        amount: 1_000_000_000,
+        rule: "24m vesting, 6m cliff",
+    },
+    Fund {
+        id: "liquidity",
+        bps: 1000,
+        amount: 1_000_000_000,
+        rule: "partially locked",
+    },
+    Fund {
+        id: "mediation",
+        bps: 800,
+        amount: 800_000_000,
+        rule: "mediation and archive utility",
+    },
+    Fund {
+        id: "insurance",
+        bps: 400,
+        amount: 400_000_000,
+        rule: "incidents and bug bounty only",
+    },
+    Fund {
+        id: "genesis_airdrop",
+        bps: 300,
+        amount: 300_000_000,
+        rule: "verified families, not a dream sale",
+    },
 ];
 
 pub const REFERRAL_DEPTH: u8 = 1;

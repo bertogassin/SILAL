@@ -14,7 +14,11 @@ pub fn hash_blob(bytes: &[u8]) -> String {
 pub fn append(chain: &mut Vec<DocRecord>, id: String, bytes: &[u8]) -> DocRecord {
     let blake = hash_blob(bytes);
     let prev = chain.last().map(|d| d.blake3.clone());
-    let rec = DocRecord { id, blake3: blake, prev };
+    let rec = DocRecord {
+        id,
+        blake3: blake,
+        prev,
+    };
     chain.push(rec.clone());
     rec
 }

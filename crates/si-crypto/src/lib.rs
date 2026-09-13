@@ -70,7 +70,8 @@ impl Drop for Keypair {
 }
 
 pub fn keypair_from_mnemonic(phrase: &str) -> Result<Keypair, CryptoError> {
-    let m = Mnemonic::parse_in_normalized(Language::English, phrase).map_err(|_| CryptoError::Mnemonic)?;
+    let m = Mnemonic::parse_in_normalized(Language::English, phrase)
+        .map_err(|_| CryptoError::Mnemonic)?;
     let seed = m.to_seed("");
     let mut sk_bytes = [0u8; 32];
     sk_bytes.copy_from_slice(&seed[..32]);
@@ -118,7 +119,9 @@ pub fn seal(password: &str, plaintext: &[u8]) -> Result<Vec<u8>, CryptoError> {
     let mut nonce_bytes = [0u8; 24];
     OsRng.fill_bytes(&mut nonce_bytes);
     let nonce = XNonce::from_slice(&nonce_bytes);
-    let mut ct = cipher.encrypt(nonce, plaintext).map_err(|_| CryptoError::Aead)?;
+    let mut ct = cipher
+        .encrypt(nonce, plaintext)
+        .map_err(|_| CryptoError::Aead)?;
     let mut out = salt.as_str().as_bytes().to_vec();
     out.push(0);
     out.extend_from_slice(&nonce_bytes);
