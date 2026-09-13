@@ -4,7 +4,6 @@ import { FAMILY_AIRDROP_TOKENS, formatUnits } from "@/lib/si/tokenomics";
 import { useSi, getBalance, type JournalItem } from "@/lib/si/store";
 import { useT } from "@/lib/si/use-t";
 import { localeTag, type MessageKey } from "@/lib/si/i18n";
-import { playSound } from "@/lib/si/sounds";
 import { copyText } from "@/lib/si/copy";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

@@ -121,7 +121,9 @@ mod tests {
     #[test]
     fn bank_and_insurance_plug_in_without_replacing_the_frame() {
         assert_eq!(BANK_INTEREST_BPS, 0);
-        assert!(!INSURANCE_AUTO_PAY);
-        assert!(!FRAME_REPLACEABLE);
+        let insurance_auto_pay = INSURANCE_AUTO_PAY;
+        let frame_replaceable = FRAME_REPLACEABLE;
+        assert!(!insurance_auto_pay);
+        assert!(!frame_replaceable);
     }
 }

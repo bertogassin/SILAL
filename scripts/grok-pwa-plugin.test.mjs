@@ -303,8 +303,10 @@ test("vercel Host without a public hostname emits no og:image", () => {
 });
 
 test("emits og:image for a public host and prefers a custom card", () => {
+  const empty = mkdtempSync(join(tmpdir(), "grok-og-placeholder-"));
   const placeholder = injectGrokPwaHead("<html><head></head></html>", {
     appName: "Wild Race",
+    cwd: empty,
     host: "wild-race.grok.me",
     site: { title: "Wild Race" },
   });
@@ -324,7 +326,9 @@ test("emits og:image for a public host and prefers a custom card", () => {
 });
 
 test("placeholder og:image appends site.color when it is 6-digit hex", () => {
+  const empty = mkdtempSync(join(tmpdir(), "grok-og-color-"));
   const themed = injectGrokPwaHead("<html><head></head></html>", {
+    cwd: empty,
     host: "wild-race.grok.me",
     site: { title: "Wild Race", color: "#FF4D2E" },
   });
@@ -334,6 +338,7 @@ test("placeholder og:image appends site.color when it is 6-digit hex", () => {
   );
 
   const invalid = injectGrokPwaHead("<html><head></head></html>", {
+    cwd: empty,
     host: "wild-race.grok.me",
     site: { title: "Wild Race", color: "red" },
   });
@@ -503,4 +508,3 @@ test("vite plugin bakes og identity as a virtual module", () => {
   assert.match(plugin, /virtual:grok-og-identity/);
   assert.match(plugin, /snapshotOgIdentity/);
 });
-

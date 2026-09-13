@@ -16,6 +16,7 @@ import { Route as CredRouteImport } from './routes/cred'
 import { Route as CustomRouteImport } from './routes/custom'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as HouseRouteImport } from './routes/house'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as MekhkRouteImport } from './routes/mekhk'
 import { Route as NetworkRouteImport } from './routes/network'
 import { Route as ReferralsRouteImport } from './routes/referrals'
@@ -57,6 +58,11 @@ const EventsRoute = EventsRouteImport.update({
 const HouseRoute = HouseRouteImport.update({
   id: '/house',
   path: '/house',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MekhkRoute = MekhkRouteImport.update({
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/custom': typeof CustomRoute
   '/events': typeof EventsRoute
   '/house': typeof HouseRoute
+  '/login': typeof LoginRoute
   '/mekhk': typeof MekhkRoute
   '/network': typeof NetworkRoute
   '/referrals': typeof ReferralsRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/custom': typeof CustomRoute
   '/events': typeof EventsRoute
   '/house': typeof HouseRoute
+  '/login': typeof LoginRoute
   '/mekhk': typeof MekhkRoute
   '/network': typeof NetworkRoute
   '/referrals': typeof ReferralsRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/custom': typeof CustomRoute
   '/events': typeof EventsRoute
   '/house': typeof HouseRoute
+  '/login': typeof LoginRoute
   '/mekhk': typeof MekhkRoute
   '/network': typeof NetworkRoute
   '/referrals': typeof ReferralsRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/custom'
     | '/events'
     | '/house'
+    | '/login'
     | '/mekhk'
     | '/network'
     | '/referrals'
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/custom'
     | '/events'
     | '/house'
+    | '/login'
     | '/mekhk'
     | '/network'
     | '/referrals'
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/custom'
     | '/events'
     | '/house'
+    | '/login'
     | '/mekhk'
     | '/network'
     | '/referrals'
@@ -203,6 +215,7 @@ export interface RootRouteChildren {
   CustomRoute: typeof CustomRoute
   EventsRoute: typeof EventsRoute
   HouseRoute: typeof HouseRoute
+  LoginRoute: typeof LoginRoute
   MekhkRoute: typeof MekhkRoute
   NetworkRoute: typeof NetworkRoute
   ReferralsRoute: typeof ReferralsRoute
@@ -261,6 +274,13 @@ declare module '@tanstack/react-router' {
       path: '/house'
       fullPath: '/house'
       preLoaderRoute: typeof HouseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mekhk': {
@@ -323,6 +343,7 @@ const rootRouteChildren: RootRouteChildren = {
   CustomRoute: CustomRoute,
   EventsRoute: EventsRoute,
   HouseRoute: HouseRoute,
+  LoginRoute: LoginRoute,
   MekhkRoute: MekhkRoute,
   NetworkRoute: NetworkRoute,
   ReferralsRoute: ReferralsRoute,

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useSi } from "@/lib/si/store";
 import { useT } from "@/lib/si/use-t";
-import { playSound } from "@/lib/si/sounds";
 import { copyText } from "@/lib/si/copy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
