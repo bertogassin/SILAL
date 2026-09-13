@@ -412,7 +412,7 @@ const dict = {
     de: "Ein Zyklus im Stammbaum ist unzulässig",
     fr: "Un cycle dans l'arbre n'est pas permis",
   },
-  "silsila.sample": {
+  "silsila.import": {
     ce: "GEDCOM чуяккха",
     ru: "Импорт GEDCOM",
     en: "Import GEDCOM",
@@ -420,13 +420,37 @@ const dict = {
     de: "GEDCOM importieren",
     fr: "Importer GEDCOM",
   },
-  "silsila.sampleHint": {
+  "silsila.importHint": {
     ce: "Хьан файл. Масала дац.",
     ru: "Ваш файл. Без учебных предков.",
     en: "Your file. No study ancestors.",
     es: "Tu archivo. Sin antepasados de estudio.",
     de: "Deine Datei. Keine Übungsahnen.",
     fr: "Votre fichier. Pas d'ancêtres d'étude.",
+  },
+  "auth.signIn": {
+    ce: "Чу вход",
+    ru: "Войти",
+    en: "Sign in",
+    es: "Entrar",
+    de: "Anmelden",
+    fr: "Se connecter",
+  },
+  "auth.signInHint": {
+    ce: "Хьан сессин хьажа а, хьан дӀахирамаш синхрон хийца а.",
+    ru: "Войдите, чтобы открыть сессию и синхронизировать свои данные.",
+    en: "Sign in to open your session and sync your data.",
+    es: "Inicia sesión para abrir tu sesión y sincronizar tus datos.",
+    de: "Melde dich an, um deine Sitzung zu öffnen und deine Daten zu synchronisieren.",
+    fr: "Connectez-vous pour ouvrir votre session et synchroniser vos données.",
+  },
+  "auth.signedIn": {
+    ce: "Сессия йина.",
+    ru: "Сессия открыта.",
+    en: "Session active.",
+    es: "Sesión activa.",
+    de: "Sitzung aktiv.",
+    fr: "Session active.",
   },
   "silsila.self": { ce: "Со", ru: "Я", en: "You", es: "Tú", de: "Du", fr: "Vous" },
   "silsila.father": { ce: "Да", ru: "Отец", en: "Father", es: "Padre", de: "Vater", fr: "Père" },

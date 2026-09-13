@@ -59,7 +59,7 @@ impl Ledger {
 }
 
 pub fn new_wallet() -> Result<(String, Keypair), WalletError> {
-    let mnemonic = generate_mnemonic();
+    let mnemonic = generate_mnemonic()?;
     let kp = keypair_from_mnemonic(&mnemonic)?;
     Ok((mnemonic, kp))
 }

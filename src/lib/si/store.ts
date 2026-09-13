@@ -37,7 +37,7 @@ import {
   fromGedcom,
   toGedcom,
   kinshipCheck,
-  SAMPLE_PERSON_IDS,
+  LEGACY_IMPORT_PERSON_IDS,
   type KinshipResult,
 } from "./silsila";
 import { applyReferralPayout, codeFromAddress, parseInvite, type ReferralState } from "./referral";
@@ -1010,8 +1010,8 @@ export const useSi = create<SiStore>()(
         try {
           const data = JSON.parse(raw) as Partial<SiPublicState> & { product?: string };
           if (data.product && data.product !== "si") return { ok: false };
-          const sample = new Set(SAMPLE_PERSON_IDS);
-          const people = (data.people ?? get().people).filter((p) => !sample.has(p.id));
+          const legacyImported = new Set(LEGACY_IMPORT_PERSON_IDS);
+          const people = (data.people ?? get().people).filter((p) => !legacyImported.has(p.id));
           set({
             people,
             edges: data.edges ?? get().edges,
@@ -1060,7 +1060,17 @@ export const useSi = create<SiStore>()(
         }
       },
       setNetworkEndpoint: (networkEndpoint) => set({ networkEndpoint }),
-      tryConnectNetwork: () => ({ ok: false }),
+      tryConnectNetwork: () => {
+        const endpoint = get().networkEndpoint.trim();
+        if (!endpoint) return { ok: true };
+        if (/^si:\/\/net\/[a-z0-9][a-z0-9:/._-]*$/i.test(endpoint)) return { ok: true };
+        try {
+          const parsed = new URL(endpoint);
+          return { ok: parsed.protocol === "https:" || parsed.protocol === "http:" };
+        } catch {
+          return { ok: false };
+        }
+      },
       completeOnboarding: () => set({ onboardingComplete: true }),
       wipe: () => {
         set({
@@ -1127,8 +1137,8 @@ export const useSi = create<SiStore>()(
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<SiPublicState> & { sampleSeeded?: boolean };
         const locale = isLocale(p.locale) ? p.locale : current.locale;
-        const sample = new Set(SAMPLE_PERSON_IDS);
-        const people = (p.people ?? current.people).filter((x) => !sample.has(x.id));
+        const legacyImported = new Set(LEGACY_IMPORT_PERSON_IDS);
+        const people = (p.people ?? current.people).filter((x) => !legacyImported.has(x.id));
         const ids = new Set(people.map((x) => x.id));
         const edges = (p.edges ?? current.edges).filter((e) => ids.has(e.from) && ids.has(e.to));
         return {

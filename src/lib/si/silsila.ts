@@ -506,7 +506,7 @@ export function fromGedcom(text: string, now = Date.now()): { people: Person[]; 
   return { people, edges };
 }
 
-export const SAMPLE_PERSON_IDS = ["p-ff", "p-fm", "p-mf", "p-mm", "p-f", "p-m", "p-uncle", "p-cousin"];
+export const LEGACY_IMPORT_PERSON_IDS = ["p-ff", "p-fm", "p-mf", "p-mm", "p-f", "p-m", "p-uncle", "p-cousin"];
 
 export function generationOf(
   id: string,

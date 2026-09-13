@@ -22,7 +22,7 @@ export const authClient = createAuthClient({
   fetchOptions: {
     onRequest(ctx) {
       const token = getBearerToken();
-      if (token) ctx.headers.set("Authorization", `Bearer ${token}`);
+      if (token) ctx.headers.set("Authorization", "Bearer " + token);
       return ctx;
     },
   },

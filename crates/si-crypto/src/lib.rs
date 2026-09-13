@@ -45,11 +45,12 @@ pub fn blake3_hex(data: &[u8]) -> String {
     hex::encode(blake3::hash(data).as_bytes())
 }
 
-pub fn generate_mnemonic() -> String {
+pub fn generate_mnemonic() -> Result<String, CryptoError> {
     let mut entropy = [0u8; 16];
     OsRng.fill_bytes(&mut entropy);
-    let m = Mnemonic::from_entropy_in(Language::English, &entropy).expect("entropy");
-    m.to_string()
+    Mnemonic::from_entropy_in(Language::English, &entropy)
+        .map(|m| m.to_string())
+        .map_err(|_| CryptoError::Mnemonic)
 }
 
 pub fn mnemonic_valid(phrase: &str) -> bool {
@@ -131,7 +132,7 @@ mod tests {
 
     #[test]
     fn mnemonic_roundtrip_address() {
-        let m = generate_mnemonic();
+        let m = generate_mnemonic().expect("mnemonic generation");
         assert!(mnemonic_valid(&m));
         let a = keypair_from_mnemonic(&m).unwrap();
         let b = keypair_from_mnemonic(&m).unwrap();

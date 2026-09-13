@@ -125,8 +125,8 @@ export function SilsilaScreen() {
         <div className="space-y-4">
           <TreeView onSelect={setDetailId} />
           <label className="block w-full cursor-pointer rounded-2xl border border-dashed border-border px-4 py-4 text-left">
-            <div className="font-display">{t("silsila.sample")}</div>
-            <div className="text-sm text-muted-foreground">{t("silsila.sampleHint")}</div>
+            <div className="font-display">{t("silsila.import")}</div>
+            <div className="text-sm text-muted-foreground">{t("silsila.importHint")}</div>
             <input
               type="file"
               accept=".ged,.gedcom,text/plain"

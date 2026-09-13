@@ -63,7 +63,7 @@ export async function getSessionUser(
   let headers = request.headers;
   if (bearerToken) {
     headers = new Headers(request.headers);
-    headers.set("Authorization", `Bearer ${bearerToken}`);
+    headers.set("Authorization", "Bearer " + bearerToken);
   }
   const session = await auth.api.getSession({ headers });
   if (!session?.user) return null;

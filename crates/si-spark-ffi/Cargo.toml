@@ -5,6 +5,10 @@ edition.workspace = true
 license.workspace = true
 description = "Safe wrapper around the Ada/SPARK engine C ABI."
 
+[features]
+default = []
+ada = []
+
 [dependencies]
 si-tokenomics = { workspace = true }
 si-silsila = { workspace = true }

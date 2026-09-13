@@ -17,13 +17,38 @@ export function NetworkScreen() {
   const tryConnect = useSi((s) => s.tryConnectNetwork);
   const [draft, setDraft] = useState(endpoint);
   const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
   const liq = getBalance(ledger, fundAddress("liquidity"));
 
-  function connect() {
-    setEndpoint(draft.trim());
+  async function connect() {
+    const next = draft.trim();
+    setEndpoint(next);
     const r = tryConnect();
-    setMsg(r.ok ? t("net.live") : t("net.offline"));
-    void playSound(r.ok ? "ui_success" : "ui_warn");
+    if (!r.ok) {
+      setMsg(t("net.offline"));
+      void playSound("ui_warn");
+      return;
+    }
+    setBusy(true);
+    try {
+      const peer = `probe-${Math.random().toString(36).slice(2, 10)}`;
+      const res = await fetch(
+        `/api/rtc?room=${encodeURIComponent("network-probe")}&peer=${encodeURIComponent(peer)}&name=${encodeURIComponent("probe")}&since=0`,
+      );
+      if (!res.ok) throw new Error("offline");
+      await fetch("/api/rtc", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ op: "leave", room: "network-probe", peer }),
+      });
+      setMsg(t("net.live"));
+      void playSound("ui_success");
+    } catch {
+      setMsg(t("net.offline"));
+      void playSound("ui_warn");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -42,7 +67,7 @@ export function NetworkScreen() {
           onChange={(e) => setDraft(e.target.value)}
           placeholder="si://net/…"
         />
-        <Button variant="secondary" onClick={connect}>
+        <Button variant="secondary" onClick={() => void connect()} disabled={busy}>
           {t("net.connect")}
         </Button>
         {msg && <p className="text-sm text-wool">{msg}</p>}
