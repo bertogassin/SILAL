@@ -2,6 +2,7 @@ create table if not exists rtc_peers (
   room text not null,
   peer_id text not null,
   name text not null,
+  session_token text not null,
   created_at timestamptz not null default now(),
   last_seen_at timestamptz not null default now(),
   primary key (room, peer_id)

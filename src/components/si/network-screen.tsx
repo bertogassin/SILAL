@@ -20,6 +20,19 @@ export function NetworkScreen() {
   const [busy, setBusy] = useState(false);
   const liq = getBalance(ledger, fundAddress("liquidity"));
 
+  function probeUrl(endpointValue: string, peer: string): URL {
+    const trimmed = endpointValue.trim();
+    const url =
+      trimmed && /^https?:\/\//i.test(trimmed)
+        ? new URL(trimmed)
+        : new URL("/api/rtc", window.location.origin);
+    url.searchParams.set("room", "network-probe");
+    url.searchParams.set("peer", peer);
+    url.searchParams.set("name", "probe");
+    url.searchParams.set("since", "0");
+    return url;
+  }
+
   async function connect() {
     const next = draft.trim();
     setEndpoint(next);
@@ -32,15 +45,22 @@ export function NetworkScreen() {
     setBusy(true);
     try {
       const peer = `probe-${Math.random().toString(36).slice(2, 10)}`;
-      const res = await fetch(
-        `/api/rtc?room=${encodeURIComponent("network-probe")}&peer=${encodeURIComponent(peer)}&name=${encodeURIComponent("probe")}&since=0`,
-      );
+      const url = probeUrl(next, peer);
+      const res = await fetch(url);
       if (!res.ok) throw new Error("offline");
-      await fetch("/api/rtc", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ op: "leave", room: "network-probe", peer }),
-      });
+      const body = (await res.json()) as { token?: string };
+      if (body.token) {
+       await fetch(url, {
+         method: "POST",
+         headers: { "content-type": "application/json" },
+         body: JSON.stringify({
+           op: "leave",
+           room: "network-probe",
+           peer,
+           token: body.token,
+         }),
+       });
+      }
       setMsg(t("net.live"));
       void playSound("ui_success");
     } catch {

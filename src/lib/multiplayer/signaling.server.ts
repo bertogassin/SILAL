@@ -1,11 +1,16 @@
+import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { getSql } from "@/lib/db";
 
 const MAX_SIGNALS_PER_POLL = 200;
 const MAX_RATE_ENTRIES = 2048;
+const PEER_TTL_SECONDS = 35;
+const SIGNAL_TTL_MINUTES = 10;
+const CLEANUP_INTERVAL_MS = 30_000;
 
 const globalRtcRef = globalThis as typeof globalThis & {
   __rtcRateLimit__?: Map<string, { count: number; resetAt: number }>;
+  __rtcCleanupAt__?: number;
 };
 
 const RoomSchema = z.string().trim().min(1).max(96).regex(/^[a-zA-Z0-9:_./-]+$/);
@@ -15,6 +20,7 @@ const JoinQuerySchema = z.object({
   room: RoomSchema,
   peer: PeerSchema,
   name: z.string().trim().max(80).default(""),
+  token: z.string().trim().min(16).max(256).optional(),
   since: z.coerce.number().int().min(0).max(Number.MAX_SAFE_INTEGER).default(0),
 });
 
@@ -31,9 +37,14 @@ const LeaveBodySchema = z.object({
   op: z.literal("leave"),
   room: RoomSchema,
   peer: PeerSchema,
+  token: z.string().trim().min(16).max(256),
 });
 
-const PostBodySchema = z.union([SignalBodySchema, LeaveBodySchema]);
+const AuthenticatedSignalBodySchema = SignalBodySchema.extend({
+  token: z.string().trim().min(16).max(256),
+});
+
+const PostBodySchema = z.union([AuthenticatedSignalBodySchema, LeaveBodySchema]);
 
 type RtcJoinQuery = z.infer<typeof JoinQuerySchema>;
 type RtcPostBody = z.infer<typeof PostBodySchema>;
@@ -69,8 +80,76 @@ function rateLimit(key: string, limit: number, windowMs: number): boolean {
 }
 
 async function cleanup(sql: Awaited<ReturnType<typeof getSql>>): Promise<void> {
-  await sql.query("delete from rtc_peers where last_seen_at < now() - interval '35 seconds'");
-  await sql.query("delete from rtc_signals where created_at < now() - interval '10 minutes'");
+  await sql.query(
+    `delete from rtc_peers where last_seen_at < now() - interval '${PEER_TTL_SECONDS} seconds'`,
+  );
+  await sql.query(
+    `delete from rtc_signals where created_at < now() - interval '${SIGNAL_TTL_MINUTES} minutes'`,
+  );
+}
+
+async function maybeCleanup(sql: Awaited<ReturnType<typeof getSql>>): Promise<void> {
+  const now = Date.now();
+  if (globalRtcRef.__rtcCleanupAt__ && now - globalRtcRef.__rtcCleanupAt__ < CLEANUP_INTERVAL_MS) {
+    return;
+  }
+  globalRtcRef.__rtcCleanupAt__ = now;
+  await cleanup(sql);
+}
+
+function issuePeerToken(): string {
+  return randomBytes(24).toString("base64url");
+}
+
+type PeerClaim = {
+  session_token: string;
+  stale: boolean;
+};
+
+async function claimPeerSession(
+  sql: Awaited<ReturnType<typeof getSql>>,
+  query: RtcJoinQuery,
+): Promise<PeerClaim | null> {
+  const existing = await sql.query<{ session_token: string; stale: boolean }>(
+    `select session_token,
+           last_seen_at < now() - interval '${PEER_TTL_SECONDS} seconds' as stale
+     from rtc_peers
+     where room = $1 and peer_id = $2
+     limit 1`,
+    [query.room, query.peer],
+  );
+  const token = query.token?.trim() || issuePeerToken();
+  const row = existing[0];
+  if (!row) {
+    await sql.query(
+     `insert into rtc_peers (room, peer_id, name, session_token, last_seen_at)
+      values ($1, $2, $3, $4, now())`,
+     [query.room, query.peer, query.name, token],
+    );
+    return { session_token: token, stale: false };
+  }
+  if (query.token && query.token === row.session_token) {
+    await sql.query(
+     `update rtc_peers
+      set name = $3, last_seen_at = now()
+      where room = $1 and peer_id = $2 and session_token = $4`,
+     [query.room, query.peer, query.name, query.token],
+    );
+    return { session_token: row.session_token, stale: false };
+  }
+  if (!row.stale) return null;
+  await sql.query(
+    `update rtc_peers
+     set name = $3, session_token = $4, last_seen_at = now()
+     where room = $1 and peer_id = $2`,
+    [query.room, query.peer, query.name, token],
+  );
+  await sql.query(
+    `delete from rtc_signals
+     where room = $1 and (sender_peer_id = $2 or recipient_peer_id = $2)`,
+    [query.room, query.peer],
+  );
+  return { session_token: token, stale: true };
 }
 
 async function handlePoll(request: Request, query: RtcJoinQuery): Promise<Response> {
@@ -78,19 +157,14 @@ async function handlePoll(request: Request, query: RtcJoinQuery): Promise<Respon
     return json({ error: "rate_limited" }, { status: 429 });
   }
   const sql = await getSql();
-  await cleanup(sql);
-  await sql.query(
-    `insert into rtc_peers (room, peer_id, name, last_seen_at)
-     values ($1, $2, $3, now())
-     on conflict (room, peer_id)
-     do update set name = excluded.name, last_seen_at = excluded.last_seen_at`,
-    [query.room, query.peer, query.name],
-  );
+  await maybeCleanup(sql);
+  const claim = await claimPeerSession(sql, query);
+  if (!claim) return json({ error: "peer_conflict" }, { status: 409 });
   const peers = await sql.query<{ id: string; name: string }>(
     `select peer_id as id, name
      from rtc_peers
      where room = $1
-       and last_seen_at >= now() - interval '35 seconds'
+       and last_seen_at >= now() - interval '${PEER_TTL_SECONDS} seconds'
      order by peer_id asc`,
     [query.room],
   );
@@ -109,7 +183,7 @@ async function handlePoll(request: Request, query: RtcJoinQuery): Promise<Respon
      limit ${MAX_SIGNALS_PER_POLL}`,
     [query.room, query.peer, query.since],
   );
-  return json({ peers, signals });
+  return json({ peers, signals, token: claim.session_token });
 }
 
 async function handleMutation(request: Request, body: RtcPostBody): Promise<Response> {
@@ -118,22 +192,30 @@ async function handleMutation(request: Request, body: RtcPostBody): Promise<Resp
     return json({ error: "rate_limited" }, { status: 429 });
   }
   const sql = await getSql();
-  await cleanup(sql);
+  await maybeCleanup(sql);
   if (body.op === "leave") {
-    await sql.query("delete from rtc_peers where room = $1 and peer_id = $2", [body.room, body.peer]);
+    const removed = await sql.query<{ peer_id: string }>(
+     `delete from rtc_peers
+      where room = $1 and peer_id = $2 and session_token = $3
+      returning peer_id`,
+     [body.room, body.peer, body.token],
+    );
+    if (removed.length === 0) return json({ error: "forbidden" }, { status: 403 });
     await sql.query(
-      "delete from rtc_signals where room = $1 and (sender_peer_id = $2 or recipient_peer_id = $2)",
-      [body.room, body.peer],
+     `delete from rtc_signals
+      where room = $1 and (sender_peer_id = $2 or recipient_peer_id = $2)`,
+     [body.room, body.peer],
     );
     return new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
   }
-  await sql.query(
-    `insert into rtc_peers (room, peer_id, name, last_seen_at)
-     values ($1, $2, $3, now())
-     on conflict (room, peer_id)
-     do update set name = excluded.name, last_seen_at = excluded.last_seen_at`,
-    [body.room, body.from, body.from],
+  const sender = await sql.query<{ peer_id: string }>(
+    `update rtc_peers
+     set last_seen_at = now()
+     where room = $1 and peer_id = $2 and session_token = $3
+     returning peer_id`,
+    [body.room, body.from, body.token],
   );
+  if (sender.length === 0) return json({ error: "forbidden" }, { status: 403 });
   await sql.query(
     `insert into rtc_signals (room, sender_peer_id, recipient_peer_id, kind, payload)
      values ($1, $2, $3, $4, $5::jsonb)`,

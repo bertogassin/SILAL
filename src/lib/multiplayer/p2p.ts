@@ -29,6 +29,7 @@ export interface SignalRow {
 export interface RtcPollResponse {
   peers: PeerRow[];
   signals: SignalRow[];
+  token: string;
 }
 
 export interface PeerInfo {
@@ -106,6 +107,7 @@ export class P2PRoom {
   private closed = false;
   private everPolled = false;
   private lastPeersFingerprint = "";
+  private sessionToken: string | null = null;
 
   constructor(opts: P2PRoomOptions) {
     this.opts = opts;
@@ -136,12 +138,18 @@ export class P2PRoom {
     if (this.pingTimer) clearInterval(this.pingTimer);
     for (const slot of this.peers.values()) slot.pc.close();
     this.peers.clear();
+    if (!this.sessionToken) return;
     // Leaving the roster is the teardown broadcast: everyone's next poll
     // drops this peer and closes their side of the pair.
     void fetch("/api/rtc", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ op: "leave", room: this.opts.room, peer: this.opts.selfId }),
+      body: JSON.stringify({
+        op: "leave",
+        room: this.opts.room,
+        peer: this.opts.selfId,
+        token: this.sessionToken,
+      }),
       keepalive: true,
     }).catch(() => {});
   }
@@ -192,11 +200,13 @@ export class P2PRoom {
       name: this.opts.name ?? "",
       since: String(this.cursor),
     });
+    if (this.sessionToken) params.set("token", this.sessionToken);
     const res = await fetch(`/api/rtc?${params}`);
     if (this.closed) return;
     if (!res.ok) throw new Error(`signaling poll failed: ${res.status}`);
     const body = (await res.json()) as RtcPollResponse;
     if (this.closed) return;
+    this.sessionToken = body.token;
     if (!this.everPolled) {
       this.everPolled = true;
       this.opts.onConnected?.();
@@ -447,6 +457,7 @@ export class P2PRoom {
   private async postSignal(to: string, kind: SignalKind, payload: unknown): Promise<void> {
     for (let attempt = 0; ; attempt++) {
       if (this.closed) return;
+      if (!this.sessionToken) throw new Error("signaling session unavailable");
       try {
         const res = await fetch("/api/rtc", {
           method: "POST",
@@ -455,6 +466,7 @@ export class P2PRoom {
             op: "signal",
             room: this.opts.room,
             from: this.opts.selfId,
+            token: this.sessionToken,
             to,
             kind,
             payload,
