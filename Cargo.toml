@@ -1,0 +1,41 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/si-core",
+  "crates/si-crypto",
+  "crates/si-wallet",
+  "crates/si-silsila",
+  "crates/si-archive",
+  "crates/si-net",
+  "crates/si-tokenomics",
+  "crates/si-spark-ffi",
+  "apps/si-cli",
+]
+
+[workspace.package]
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/si-app/si"
+rust-version = "1.80"
+
+[workspace.dependencies]
+si-core = { path = "crates/si-core" }
+si-crypto = { path = "crates/si-crypto" }
+si-wallet = { path = "crates/si-wallet" }
+si-silsila = { path = "crates/si-silsila" }
+si-archive = { path = "crates/si-archive" }
+si-net = { path = "crates/si-net" }
+si-tokenomics = { path = "crates/si-tokenomics" }
+si-spark-ffi = { path = "crates/si-spark-ffi" }
+blake3 = "1"
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+x25519-dalek = { version = "2", features = ["static_secrets"] }
+chacha20poly1305 = "0.10"
+argon2 = "0.5"
+zeroize = { version = "1", features = ["zeroize_derive"] }
+secrecy = "0.10"
+rand = "0.8"
+thiserror = "2"
+clap = { version = "4", features = ["derive"] }
+hex = "0.4"
+bip39 = "2"

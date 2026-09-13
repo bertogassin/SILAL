@@ -1,0 +1,9 @@
+target/
+node_modules/
+.vercel/
+.tanstack/
+.grok/
+.idea/
+.DS_Store
+*.log
+artifacts/*.zip
