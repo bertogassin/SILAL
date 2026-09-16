@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <rect width="16" height="16" rx="3" fill="#0B1F1A"/>
+  <!-- mountain peak fused to the S: stone chevron sitting on the top bar -->
+  <polygon points="8,1 12,4 4,4" fill="#2C3330"/>
+  <rect x="7" y="1" width="2" height="2" fill="#8E1F2F"/>
+  <!-- geometric S -->
+  <rect x="4" y="4" width="8" height="2" fill="#F4EFE6"/>
+  <rect x="4" y="6" width="2" height="2" fill="#F4EFE6"/>
+  <rect x="4" y="8" width="8" height="2" fill="#F4EFE6"/>
+  <rect x="10" y="10" width="2" height="2" fill="#F4EFE6"/>
+  <rect x="4" y="12" width="8" height="2" fill="#F4EFE6"/>
+  <!-- gold hairline -->
+  <rect x="4" y="14" width="8" height="1" fill="#D7B36A"/>
+</svg>

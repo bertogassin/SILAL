@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "SILAL",
+      "hasCanvas": false,
+      "bodyTextLen": 163,
+      "bodyTextHash": "1a9f95416c2da3cc541d389f6ca0389f6fdc1ad30a1d5de13043ebb865c1546f",
+      "bodyTextPrefix": "SILAL Шайн нахана — шайн гергарло. Мотт харжа ХӀинца а хийцало. ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "SILAL",
+      "hasCanvas": false,
+      "bodyTextLen": 163,
+      "bodyTextHash": "1a9f95416c2da3cc541d389f6ca0389f6fdc1ad30a1d5de13043ebb865c1546f",
+      "bodyTextPrefix": "SILAL Шайн нахана — шайн гергарло. Мотт харжа ХӀинца а хийцало. ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

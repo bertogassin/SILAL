@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <style>
+    html, body { margin: 0; padding: 0; width: 1200px; height: 630px; background: #0B1F1A; overflow: hidden; }
+  </style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" shape-rendering="geometricPrecision">
+  <defs>
+    <radialGradient id="field" cx="50%" cy="38%" r="72%">
+      <stop offset="0%" stop-color="#123027"/>
+      <stop offset="100%" stop-color="#0B1F1A"/>
+    </radialGradient>
+    <radialGradient id="vignette" cx="50%" cy="42%" r="74%">
+      <stop offset="50%" stop-color="#0B1F1A" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#050E0C" stop-opacity="0.55"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#field)"/>
+
+  <!-- one geometric highland peak, two stone facets -->
+  <polygon points="600,48 100,630 600,630" fill="#141F1C"/>
+  <polygon points="600,48 1100,630 600,630" fill="#1B2824"/>
+  <line x1="600" y1="48" x2="600" y2="630" stroke="#2C3330" stroke-width="1" stroke-opacity="0.65"/>
+
+  <!-- clan tamga fused to the peak: garnet diamond + wool forked staff -->
+  <g transform="translate(600,48) scale(1.15)">
+    <rect x="-7" y="-7" width="14" height="14" fill="#8E1F2F" transform="rotate(45 0 0)"/>
+    <rect x="-2" y="10" width="4" height="36" fill="#C4A574"/>
+    <path d="M0 46 L-22 78 M0 46 L22 78" fill="none" stroke="#C4A574" stroke-width="4" stroke-linecap="square"/>
+  </g>
+
+  <!-- geometric wordmark "si" (shifted up so the lockup sits in the middle) -->
+  <path fill="#F4EFE6" d="M388 258 H688 V294 H424 V330 H688 V438 H388 V402 H652 V366 H388 Z"/>
+  <rect x="776" y="258" width="36" height="180" fill="#F4EFE6"/>
+  <rect x="776" y="204" width="36" height="36" fill="#F4EFE6"/>
+
+  <!-- the single gold hairline -->
+  <rect x="510" y="470" width="180" height="1.5" fill="#D7B36A"/>
+
+  <rect width="1200" height="630" fill="url(#vignette)"/>
+</svg>
+</body>
+</html>
