@@ -35,7 +35,7 @@ jobs:
       - name: cargo test --workspace
         run: cargo test --workspace
 
-      - name: si-spark-ffi: ada feature stays declared and buildable
+      - name: "si-spark-ffi: ada feature stays declared and buildable"
         # Regression guard: `ada` was referenced in #[cfg(feature = "ada")]
         # without ever being declared in Cargo.toml, so it could never be
         # turned on and clippy's unexpected_cfgs caught it. This fails the
