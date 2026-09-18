@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  rust:
+    name: Rust (test, clippy, fmt, ada feature)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: rustfmt, clippy
+          # Caches ~/.cargo/registry, ~/.cargo/git and target/, keyed off
+          # Cargo.lock — without it every run rebuilds the workspace from
+          # scratch.
+          cache: true
+
+      - name: cargo fmt --check
+        run: cargo fmt --all --check
+
+      - name: cargo clippy --workspace -- -D warnings
+        run: cargo clippy --workspace -- -D warnings
+
+      - name: cargo test --workspace
+        run: cargo test --workspace
+
+      - name: si-spark-ffi: ada feature stays declared and buildable
+        # Regression guard: `ada` was referenced in #[cfg(feature = "ada")]
+        # without ever being declared in Cargo.toml, so it could never be
+        # turned on and clippy's unexpected_cfgs caught it. This fails the
+        # same way (missing-feature error) if that ever regresses.
+        run: cargo check -p si-spark-ffi --features ada
+
+  web:
+    name: Web client (pnpm build, eslint, tsc)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Must run before actions/setup-node's pnpm cache, which shells out
+      # to `pnpm store path`.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          # Matches the pnpm this project was set up with (pnpm-lock.yaml
+          # lockfileVersion 9.0); bump alongside it if it ever changes.
+          version: 12.4.2
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      - name: pnpm run build
+        # Uses whatever nitro preset is committed in vite.config.ts today
+        # (vercel) — this workflow does not touch it.
+        run: pnpm run build
+
+      - name: eslint
+        run: pnpm run lint
+
+      - name: tsc --noEmit
+        run: pnpm run typecheck
