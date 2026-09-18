@@ -8,3 +8,10 @@ description = "Safe wrapper around the Ada/SPARK engine C ABI."
 [dependencies]
 si-tokenomics = { workspace = true }
 si-silsila = { workspace = true }
+
+[features]
+# Off by default: no Ada/SPARK toolchain ships in this environment, and no
+# libsi_spark_engine build exists yet. Enabling it switches the extern
+# declarations in src/lib.rs on and asks build.rs to link the library; see
+# CLAUDE.md for what actually has to exist first for that link to succeed.
+ada = []
