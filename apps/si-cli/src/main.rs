@@ -59,7 +59,9 @@ enum RefCmd {
 fn main() {
     let cli = Cli::parse();
     match cli.cmd {
-        Cmd::Wallet { action: WalletCmd::New } => match new_wallet() {
+        Cmd::Wallet {
+            action: WalletCmd::New,
+        } => match new_wallet() {
             Ok((mnemonic, kp)) => {
                 println!("address {}", kp.address);
                 println!("mnemonic {mnemonic}");
@@ -70,7 +72,9 @@ fn main() {
                 std::process::exit(1);
             }
         },
-        Cmd::Token { action: TokenCmd::GenesisInfo } => {
+        Cmd::Token {
+            action: TokenCmd::GenesisInfo,
+        } => {
             println!("SILAL total {TOTAL_SUPPLY}");
             println!("units {TOTAL_UNITS}");
             println!("sum_funds {}", genesis_amount());
@@ -95,4 +99,3 @@ fn main() {
         },
     }
 }
-

@@ -78,7 +78,8 @@ impl Drop for Keypair {
 }
 
 pub fn keypair_from_mnemonic(phrase: &str) -> Result<Keypair, CryptoError> {
-    let m = Mnemonic::parse_in_normalized(Language::English, phrase).map_err(|_| CryptoError::Mnemonic)?;
+    let m = Mnemonic::parse_in_normalized(Language::English, phrase)
+        .map_err(|_| CryptoError::Mnemonic)?;
     let seed = Zeroizing::new(m.to_seed(""));
     let mut sk_bytes = Zeroizing::new([0u8; 32]);
     sk_bytes.copy_from_slice(&seed[..32]);
@@ -127,7 +128,9 @@ pub fn seal(password: &str, plaintext: &[u8]) -> Result<Vec<u8>, CryptoError> {
     // sitting unwiped in memory. `hash_password_into` writes the key
     // straight into a buffer we own and can zeroize, with no such copy.
     let mut salt_buf = [0u8; Salt::MAX_LENGTH];
-    let salt_bytes = salt.decode_b64(&mut salt_buf).map_err(|_| CryptoError::Kdf)?;
+    let salt_bytes = salt
+        .decode_b64(&mut salt_buf)
+        .map_err(|_| CryptoError::Kdf)?;
     let mut key = Zeroizing::new([0u8; 32]);
     argon
         .hash_password_into(password.as_bytes(), salt_bytes, key.as_mut())
@@ -137,7 +140,9 @@ pub fn seal(password: &str, plaintext: &[u8]) -> Result<Vec<u8>, CryptoError> {
     let mut nonce_bytes = [0u8; 24];
     OsRng.fill_bytes(&mut nonce_bytes);
     let nonce = XNonce::from_slice(&nonce_bytes);
-    let mut ct = cipher.encrypt(nonce, plaintext).map_err(|_| CryptoError::Aead)?;
+    let mut ct = cipher
+        .encrypt(nonce, plaintext)
+        .map_err(|_| CryptoError::Aead)?;
     let mut out = salt.as_str().as_bytes().to_vec();
     out.push(0);
     out.extend_from_slice(&nonce_bytes);

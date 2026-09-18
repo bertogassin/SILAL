@@ -36,6 +36,9 @@ mod tests {
 
     #[test]
     fn parses_ref() {
-        assert_eq!(parse_invite("si://r/SI-ROOT").unwrap(), Invite::Referral("SI-ROOT".into()));
+        assert_eq!(
+            parse_invite("si://r/SI-ROOT").unwrap(),
+            Invite::Referral("SI-ROOT".into())
+        );
     }
 }

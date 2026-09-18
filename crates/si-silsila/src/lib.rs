@@ -133,13 +133,7 @@ fn mother<'a>(id: &str, edges: &'a [Edge], people: &'a [Person]) -> Option<&'a s
         .map(|e| e.from.as_str())
 }
 
-fn chain(
-    id: &str,
-    edges: &[Edge],
-    people: &[Person],
-    max: u8,
-    via_father: bool,
-) -> Vec<String> {
+fn chain(id: &str, edges: &[Edge], people: &[Person], max: u8, via_father: bool) -> Vec<String> {
     let mut out = Vec::new();
     let mut cur = Some(id);
     let mut seen = HashSet::new();
@@ -184,12 +178,7 @@ fn siblings(id: &str, edges: &[Edge]) -> HashSet<String> {
     out
 }
 
-pub fn kinship_check(
-    people: &[Person],
-    edges: &[Edge],
-    a: &str,
-    b: &str,
-) -> KinshipResult {
+pub fn kinship_check(people: &[Person], edges: &[Edge], a: &str, b: &str) -> KinshipResult {
     if a == b {
         return KinshipResult {
             kind: KinshipKind::BlockedByPolicy,
@@ -257,11 +246,19 @@ mod tests {
     #[test]
     fn rejects_cycle() {
         let people = vec![p("a", Gender::Male), p("b", Gender::Male)];
-        let mut edges = vec![Edge { kind: EdgeType::Parent, from: "a".into(), to: "b".into() }];
+        let mut edges = vec![Edge {
+            kind: EdgeType::Parent,
+            from: "a".into(),
+            to: "b".into(),
+        }];
         let err = add_edge(
             &people,
             &mut edges,
-            Edge { kind: EdgeType::Parent, from: "b".into(), to: "a".into() },
+            Edge {
+                kind: EdgeType::Parent,
+                from: "b".into(),
+                to: "a".into(),
+            },
         );
         assert!(matches!(err, Err(GraphError::Cycle)));
     }
@@ -276,10 +273,26 @@ mod tests {
             p("c", Gender::Male),
         ];
         let edges = vec![
-            Edge { kind: EdgeType::Parent, from: "gf".into(), to: "f".into() },
-            Edge { kind: EdgeType::Parent, from: "gf".into(), to: "u".into() },
-            Edge { kind: EdgeType::Parent, from: "f".into(), to: "a".into() },
-            Edge { kind: EdgeType::Parent, from: "u".into(), to: "c".into() },
+            Edge {
+                kind: EdgeType::Parent,
+                from: "gf".into(),
+                to: "f".into(),
+            },
+            Edge {
+                kind: EdgeType::Parent,
+                from: "gf".into(),
+                to: "u".into(),
+            },
+            Edge {
+                kind: EdgeType::Parent,
+                from: "f".into(),
+                to: "a".into(),
+            },
+            Edge {
+                kind: EdgeType::Parent,
+                from: "u".into(),
+                to: "c".into(),
+            },
         ];
         let r = kinship_check(&people, &edges, "a", "c");
         assert_eq!(r.kind, KinshipKind::BlockedByPolicy);
